@@ -1,5 +1,7 @@
 import { Transaction } from './model.js';
 
+//Recebe as requisições e retorna a resposta para o usuário
+
 export class TransactionController {
 
     findByUser(request, response) {

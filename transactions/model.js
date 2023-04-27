@@ -1,6 +1,8 @@
 import admin from 'firebase-admin';
 import { TransactionRepository } from './repository.js';
 
+//Contém a lógica de negócio
+
 export class Transaction {
 
     date;

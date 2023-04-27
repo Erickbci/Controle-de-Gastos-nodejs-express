@@ -1,5 +1,7 @@
 import admin from 'firebase-admin';
 
+//Acessa o banco de dados
+
 export class TransactionRepository {
 
     findByUserUid(uid) {
