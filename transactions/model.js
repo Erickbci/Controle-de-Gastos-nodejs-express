@@ -3,6 +3,7 @@ import { TransactionRepository } from './repository.js';
 import { UserNotInformedError } from './errors/user-not-informed.error.js';
 import { TransactionUidNotInformedError } from './errors/transaction-uid-not-informed-error.js';
 import { TransactionNotFoundError } from './errors/transaction-not-found.error.js';
+import { UserDoesntOwnTransactionError } from './errors/user-doesnt-own-transaction.error.js';
 
 //Contém a lógica de negócio
 
@@ -32,6 +33,9 @@ export class Transaction {
     findByUid() {
         if (!this.uid) {
             return Promise.reject(new TransactionUidNotInformedError());
+        }
+        if (this.user.uid != transactionDb.user.uid) {
+            return Promise.reject(new UserDoesntOwnTransactionError())
         }
 
         return this.#repository.findByUid(this.uid).then(transactionDb => {

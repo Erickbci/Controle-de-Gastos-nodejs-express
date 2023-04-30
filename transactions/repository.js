@@ -17,4 +17,13 @@ export class TransactionRepository {
                 }))
             })
     }
+
+    findByUid() {
+        return admin.firestore()
+            .collection('transactions')
+            .doc(uid)
+            .get()
+            .then(snapshot => snapshot.data())
+    }
+
 }
