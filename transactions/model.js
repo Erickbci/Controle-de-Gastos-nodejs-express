@@ -34,13 +34,13 @@ export class Transaction {
         if (!this.uid) {
             return Promise.reject(new TransactionUidNotInformedError());
         }
-        if (this.user.uid != transactionDb.user.uid) {
-            return Promise.reject(new UserDoesntOwnTransactionError())
-        }
-
+        
         return this.#repository.findByUid(this.uid).then(transactionDb => {
             if (!transactionDb) {
                 return Promise.reject(new TransactionNotFoundError());
+            }
+            if (this.user.uid != transactionDb.user.uid) {
+                return Promise.reject(new UserDoesntOwnTransactionError())
             }
             this.date = transactionDb.date;
             this.description = transactionDb.description;
@@ -49,5 +49,7 @@ export class Transaction {
             this.type = transactionDb.type;
             this.user = transactionDb.user;
         })
+        
+
     }
 }
