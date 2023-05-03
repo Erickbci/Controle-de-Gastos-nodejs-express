@@ -1,5 +1,5 @@
 import { BadRequestError } from "../../errors/bad-request.error.js";
-import { validateCreateTransaction } from "../create-transaction.validator";
+import { validateTransaction } from "../create-transaction.validator";
 
 describe('Create transaction validator', () => {
 
@@ -24,14 +24,14 @@ describe('Create transaction validator', () => {
 
     test('Given date not informed, then return error 400', () => {
         request.body.date = null;
-        validateCreateTransaction(request, response);
+        validateTransaction(request, response);
 
         expect(response._status).toEqual(400);
     })
 
     test('Given date not informed, then return error message', () => {
         request.body.date = null;
-        validateCreateTransaction(request, response);
+        validateTransaction(request, response);
 
         expect(response._json).toBeInstanceOf(BadRequestError);
     })
@@ -39,7 +39,7 @@ describe('Create transaction validator', () => {
     test('Given date invalid, then return error 400', () => {
         request.body.date = 'invalidDate';
         
-        validateCreateTransaction(request, response);
+        validateTransaction(request, response);
 
         expect(response._status).toEqual(400);
     })
@@ -47,91 +47,91 @@ describe('Create transaction validator', () => {
     test('Given date invalid, then return error message', () => {
         request.body.date = 'invalidDate';
 
-        validateCreateTransaction(request, response);
+        validateTransaction(request, response);
 
         expect(response._json).toBeInstanceOf(BadRequestError);;
     })
 
     test('Given money not informed, then return error 400', () => {
         request.body.money = null;
-        validateCreateTransaction(request, response);
+        validateTransaction(request, response);
 
         expect(response._status).toEqual(400);
     })
 
     test('Given money not informed, then return error message', () => {
         request.body.money = null;
-        validateCreateTransaction(request, response);
+        validateTransaction(request, response);
 
         expect(response._json).toBeInstanceOf(BadRequestError);
     })
 
     test('Given currency not informed, then return error 400', () => {
         request.body.money.currency = null;
-        validateCreateTransaction(request, response);
+        validateTransaction(request, response);
 
         expect(response._status).toEqual(400);
     })
 
     test('Given currency not informed, then return error message', () => {
         request.body.money.currency = null;
-        validateCreateTransaction(request, response);
+        validateTransaction(request, response);
 
         expect(response._json).toBeInstanceOf(BadRequestError);
     })
 
     test('Given value not informed, then return error 400', () => {
         request.body.money.value = null;
-        validateCreateTransaction(request, response);
+        validateTransaction(request, response);
 
         expect(response._status).toEqual(400);
     })
 
     test('Given value not informed, then return error message', () => {
         request.body.money.value = null;
-        validateCreateTransaction(request, response);
+        validateTransaction(request, response);
 
         expect(response._json).toBeInstanceOf(BadRequestError);
     })
 
     test('Given transaction type not informed, then return error 400', () => {
         request.body.transactionType = null;
-        validateCreateTransaction(request, response);
+        validateTransaction(request, response);
 
         expect(response._status).toEqual(400);
     })
 
     test('Given transaction type not informed, then return error message', () => {
         request.body.transactionType = null;
-        validateCreateTransaction(request, response);
+        validateTransaction(request, response);
 
         expect(response._json).toBeInstanceOf(BadRequestError);
     })
 
     test('Given type not informed, then return error 400', () => {
         request.body.type = null;
-        validateCreateTransaction(request, response);
+        validateTransaction(request, response);
 
         expect(response._status).toEqual(400);
     })
 
     test('Given type not informed, then return error message', () => {
         request.body.type = null;
-        validateCreateTransaction(request, response);
+        validateTransaction(request, response);
 
         expect(response._json).toBeInstanceOf(BadRequestError);
     })
 
     test('Given type is not income or expense, then return error 400', () => {
         request.body.type = 'anyOtherType';
-        validateCreateTransaction(request, response);
+        validateTransaction(request, response);
 
         expect(response._status).toEqual(400);
     })
 
     test('Given type is not income or expense, then return error message', () => {
         request.body.type = 'anyOtherType';
-        validateCreateTransaction(request, response);
+        validateTransaction(request, response);
 
         expect(response._json).toBeInstanceOf(BadRequestError);
     })
@@ -140,7 +140,7 @@ describe('Create transaction validator', () => {
         let hasCalledNext = false;
         const next = () => {hasCalledNext = true;}
 
-        validateCreateTransaction(request, response, next);
+        validateTransaction(request, response, next);
 
         expect(hasCalledNext).toBeTruthy();
     })
