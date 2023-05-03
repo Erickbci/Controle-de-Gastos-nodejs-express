@@ -202,7 +202,6 @@ describe("Transaction model", () => {
 
             })
     
-
             function createTransaction() {
                 const transaction = new Transaction();
                 transaction.uid = 1;
