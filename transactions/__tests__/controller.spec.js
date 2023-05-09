@@ -1,213 +1,212 @@
-import { TransactionController } from '../controller.js'
+import { TransactionController } from '../controller.js';
 
 describe('Transaction controller', () => {
 
     let request;
     let response;
+    let controller;
+
+    const user = {uid: "anyUserUid"};
+    const error = {code: 500};
 
     beforeEach(() => {
         request = {};
         response = new ResponseMock();
     })
 
-    describe('Given find transaction by user', () => {
+    describe('given find transaction by user', () => {
 
-        let controller;
-        let transaction;
+        describe('when success', () => {
 
-        const error = {code: 500};
-        const transactions = [{uid: 1}, {uid: 2}];
+            const transactions = [{uid: 1}, {uid: 2}];
 
-        beforeEach(() => {
-            transaction = new TransactionMock();
-            controller = new TransactionController(transaction)
-        })
+            beforeEach(() => {
+                controller = new TransactionController({
+                    findByUser: () => Promise.resolve(transactions)
+                });
+            })
 
-        test('when success, then return 200', (done) => {
-            transaction._response = Promise.resolve(transactions);
+            test('then return 200', (done) => {
+                controller.findByUser(request, response).then(() => {
+                    expect(response._status).toEqual(200);
+                    done();
+                })
+                
+            })
     
-            controller.findByUser(request, response).then(() => {
-                expect(response._status).toEqual(200);
-                done();
-            });
-        })
+            test('then return transactions', (done) => {
+                controller.findByUser(request, response).then(() => {
+                    expect(response._json).toEqual(transactions);
+                    done();
+                })
+                
+            })
 
-        test('when success, then return transactions', (done) => {
-            transaction._response = Promise.resolve(transactions);
-    
-            controller.findByUser(request, response).then(() => {
-                expect(response._json).toEqual(transactions);
-                done();
-            });
         })
 
         describe('when fail', () => {
 
+            beforeEach(() => {
+                controller = new TransactionController({
+                    findByUser: () => Promise.reject(error)
+                });
+            })
+    
             test('then return error', (done) => {
-                transaction._response = Promise.reject(error);
-
                 controller.findByUser(request, response).then(() => {
                     expect(response._json).toEqual(error);
                     done();
                 })
             })
         
-            test('then return error status ', (done) => {
-                transaction._response = Promise.reject(error)
-        
+            test('then return error status', (done) => {
                 controller.findByUser(request, response).then(() => {
-                    expect(response._status).toEqual(500);
+                    expect(response._status).toEqual(error.code);
                     done();
                 })
             })
+
         })
+
+    })
+
+    describe('given find transaction by uid', () => {
+
+        describe('when success', () => {
+
+            const transaction = {
+                findByUid: () => Promise.resolve()
+            };
+
+            beforeEach(() => {
+                request = {params: {uid: 1}, user};
+                response = new ResponseMock();
+                controller = new TransactionController(transaction);
+            })
+
+            test('then return status 200', async () => {
+                await controller.findByUid(request, response);
     
+                expect(response._status).toEqual(200);
+            })
+    
+            test('then return transaction', async () => {
+                await controller.findByUid(request, response);
+    
+                expect(response._json).toEqual(transaction);
+            })
+    
+            test('then transaction should have user from request', async () => {
+                await controller.findByUid(request, response);
+    
+                expect(response._json.user).toEqual(user);
+            })
+    
+            test('then transaction should have uid from request', async () => {
+                await controller.findByUid(request, response);
+    
+                expect(response._json.uid).toEqual(1);
+            })
 
-        class TransactionMock {
-            _response;
-            findByUser() {
-                return this._response;
-            }
-        }
+        })
+
+        describe('when fail', () => {
+
+            beforeEach(() => {
+                request = {params: {uid: 1}}
+                response = new ResponseMock();
+
+                controller = new TransactionController({
+                    findByUid: () => Promise.reject(error)
+                });
+            })
+
+            test('then return error status', async () => {
+                await controller.findByUid(request, response);
+    
+                expect(response._status).toEqual(error.code);
+            })
+    
+            test('then return error status', async () => {
+                await controller.findByUid(request, response);
+    
+                expect(response._json).toEqual(error);
+            })
+
+        })
 
     })
 
-    describe('Given find transaction by uid', () => {
+    describe('given create new transaction', () => {
 
-        test('given success, then return status 200', async () => {
-            const controller = new TransactionController({
-                findByUid: () => Promise.resolve()
-            });
-
-            const request = {params: {uid: 1}};
-            const response = new ResponseMock();
-
-            await controller.findByUid(request, response);
-            expect(response._status).toEqual(200);
-        })
-
-        test('given success, then return transaction', async () => {
-            const transaction = {
-                findByUid: () => Promise.resolve()
-            }
-
-            const controller = new TransactionController(transaction);
-
-            const request = {params: {uid: 1}};
-            const response = new ResponseMock();
-
-            await controller.findByUid(request, response);
-            expect(response._json).toEqual(transaction);
-        })
-
-        test('when fail, then return status 500', async () => {
-            const controller = new TransactionController({
-                findByUid: () => Promise.reject({code:500})
-            });
-
-            const request = {params: {uid: 1}};
-            const response = new ResponseMock();
-
-            await controller.findByUid(request, response);
-            expect(response._status).toEqual(500);
-        })
-
-        test('when fail, then return error status', async () => {
-            const controller = new TransactionController({
-                findByUid: () => Promise.reject({code:500})
-            });
-
-            const request = {params: {uid: 1}};
-            const response = new ResponseMock();
-
-            await controller.findByUid(request, response);
-            expect(response._json).toEqual({code:500});
-        })
-    })
-
-    describe('Given create new transaction', () => {
-
-        test('when success, then return status 200', async () => {
-            const controller = new TransactionController({
-                create: () => Promise.resolve()
-            });
-
-            const request = {body: {}};
-            const response = new ResponseMock();
-
-            await controller.create(request, response);
-
-            expect(response._status).toEqual(200);
-        })
-
-        test('when success, then return transaction', async () => {
-            const transaction = {
-                create: () => Promise.resolve()
-            }
-
-            const controller = new TransactionController(transaction);
-
-            const request = {body: {}};
-            const response = new ResponseMock();
-
-            await controller.create(request, response);
-
-            expect(response._json).toEqual(transaction);
+        beforeEach(() => {
+            request = {body: {}, user};
         })
 
         test('then transaction should belong to user on request', async () => {
-            const transaction = {
+            const controller = new TransactionController({
+                create: () => Promise.resolve()
+            });
+
+            await controller.create(request, response);
+
+            expect(response._json.user).toEqual(user);
+        })
+
+        describe('when success', () => {
+
+            let transaction = {
                 create: () => Promise.resolve()
             }
 
-            const controller = new TransactionController(transaction);
+            beforeEach(() => {
+                controller = new TransactionController(transaction);
+            })
 
-            const request = {body: {}, user: {uid: 'anyUserUid'}};
-            const response = new ResponseMock();
+            test('when success, then return status 200', async () => {
+                await controller.create(request, response);
+    
+                expect(response._status).toEqual(200);
+            })
+    
+            test('when success, then return transaction', async () => {
+                await controller.create(request, response);
+    
+                expect(response._json).toEqual(transaction);
+            })
 
-            await controller.create(request, response);
-
-            expect(response._json.user).toEqual({uid: 'anyUserUid'});
         })
 
-        test('when fail, then return error status', async () => {
-            const controller = new TransactionController({
-                create: () => Promise.reject({code: 500})
-            });
+        describe('when fail', () => {
 
-            const request = {body: {}};
-            const response = new ResponseMock();
+            beforeEach(() => {
+                controller = new TransactionController({
+                    create: () => Promise.reject(error)
+                });
+            })
 
-            await controller.create(request, response);
+            test('then return error status', async () => {
+                await controller.create(request, response);
+    
+                expect(response._status).toEqual(error.code);
+            })
+    
+            test('then return error', async () => {
+                await controller.create(request, response);
+    
+                expect(response._json).toEqual(error);
+            })
 
-            expect(response._status).toEqual(500);
         })
 
-        test('when fail, then return error message', async () => {
-            const controller = new TransactionController({
-                create: () => Promise.reject({code: 500})
-            });
-
-            const request = {body: {}};
-            const response = new ResponseMock();
-
-            await controller.create(request, response);
-
-            expect(response._json).toEqual({code: 500});
-        })
     })
 
-    describe('Given update transaction', () => {
-
-        const user = {uid: 'anyUserUid'};
-    
-        const request = {params: {uid: 1}, user};
-        let response;
+    describe('given update transaction', () => {
 
         let model;
 
         beforeEach(() => {
-            response = new ResponseMock();
+            request = {params: {uid: 1}, user};
             model = {
                 _hasUpdated: false,
                 update() {
@@ -215,30 +214,6 @@ describe('Transaction controller', () => {
                     return Promise.resolve();
                 }
             };
-        })
-
-        test('when success, then return status 200', async () => {
-            const controller = new TransactionController(model);
-
-            await controller.update(request, response);
-
-            expect(response._status).toEqual(200);
-        })
-
-        test('when success, then return updated transaction', async () => {
-            const controller = new TransactionController(model);
-
-            await controller.update(request, response);
-
-            expect(response._json).toEqual(model);
-        })
-
-        test('then transaction should belong to user on request', async () => {
-            const controller = new TransactionController(model);
-
-            await controller.update(request, response);
-
-            expect(response._json.user).toEqual(user);
         })
 
         test('then transaction should have uid from request', async () => {
@@ -249,39 +224,62 @@ describe('Transaction controller', () => {
             expect(response._json.uid).toEqual(1);
         })
 
+        test('then transaction should belong to user on request', async () => {
+            const controller = new TransactionController(model);
+
+            await controller.update(request, response);
+
+            expect(response._json.user).toEqual(user);
+        })
+
         test('then update transaction', async () => {
             const controller = new TransactionController(model);
 
             await controller.update(request, response);
 
-            expect(model._hasUpdated).toBeTruthy();
+            expect(model._hasUpdated).toBeTruthy();;
         })
 
-        test('when fail, then return error status 500', async () => {
-            const controller = new TransactionController({
-                update: () => Promise.reject({code: 500})
-            });
+        describe('when success', () => {
 
-            await controller.update(request, response);
+            beforeEach(async () => {
+                const controller = new TransactionController(model);
+                await controller.update(request, response);
+            })
 
-            expect(response._status).toEqual(500);
+            test('then return status 200', async () => {
+                expect(response._status).toEqual(200);
+            })
+    
+            test('then return updated transaction', async () => {
+                expect(response._json).toEqual(model);
+            })
+
         })
 
-        test('when fail, then return error message', async () => {
-            const controller = new TransactionController({
-                update: () => Promise.reject({code: 500})
-            });
+        describe('when fail', () => {
 
-            await controller.update(request, response);
+            beforeEach(async () => {
+                const controller = new TransactionController({
+                    update: () => Promise.reject(error)
+                });
+    
+                await controller.update(request, response);
+            })
 
-            expect(response._json).toEqual({code: 500});
+            test('then return error status', async () => {
+                expect(response._status).toEqual(error.code);
+            })
+    
+            test('then return error status', async () => {
+                expect(response._json).toEqual(error);
+            })
+
         })
+
     })
 
-    describe('Given remove transaction', () => {
-
-        let request; 
-        let response;
+    describe('given remove transaction', () => {
 
         const model = {
             _hasDeleted: false,
@@ -290,67 +288,68 @@ describe('Transaction controller', () => {
                 return Promise.resolve();
             }
         }
-
-        const user = {uid: 'anyUserUid'};
-
         beforeEach(() => {
-            request = {params: {uid: 1},user};
+            request = {params: {uid: 1}, user};
             response = new ResponseMock();
-        })
 
-        test('when success, then return status 200', async () => {
-            const controller = new TransactionController(model);
-
-            await controller.delete(request, response);
-
-            expect(response._status).toEqual(200);
+            controller = new TransactionController(model);
         })
 
         test('then remove transaction', async () => {
-            const controller = new TransactionController(model);
-
             await controller.delete(request, response);
 
             expect(model._hasDeleted).toBeTruthy();
         })
 
         test('then transaction should belong to user from request', async () => {
-            const controller = new TransactionController(model);
-
             await controller.delete(request, response);
 
             expect(model.user).toEqual(user);
         })
 
         test('then transaction should have uid from request', async () => {
-            const controller = new TransactionController(model);
-
             await controller.delete(request, response);
 
             expect(model.uid).toEqual(1);
         })
 
-        test('when error, then return error status', async () => {
-            const controller = new TransactionController({
-                delete: () => Promise.reject({code: 500})
-            });
+        describe('when success', () => {
 
-            await controller.delete(request, response);
-
-            expect(response._status).toEqual(500);
-        })
-
-        test('when error, then return error message', async () => {
-            const controller = new TransactionController({
-                delete: () => Promise.reject({code: 500})
-            });
-
-            await controller.delete(request, response);
-
-            expect(response._json).toEqual({code: 500});
-        })
-    })
+            test('then return status 200', async () => {
+                await controller.delete(request, response);
     
+                expect(response._status).toEqual(200);
+            })
+    
+            test('then return deleted transaction', async () => {
+                await controller.delete(request, response);
+    
+                expect(response._json).toEqual(model);
+            })
+
+        })
+
+        describe('when error', () => {
+
+            beforeEach(async () => {
+                controller = new TransactionController({
+                    delete: () => Promise.reject(error)
+                });
+
+                await controller.delete(request, response);
+            })
+
+            test('then return error status', () => {
+                expect(response._status).toEqual(error.code);
+            })
+    
+            test('then return error', () => {
+                expect(response._json).toEqual(error);
+            })
+
+        })
+
+    })
 
     class ResponseMock {
         _json;
@@ -358,7 +357,7 @@ describe('Transaction controller', () => {
         json(value) {
             this._json = value;
         }
-        status(value){
+        status(value) {
             this._status = value;
             return this;
         }

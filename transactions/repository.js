@@ -1,6 +1,5 @@
-import admin from 'firebase-admin';
-
 //Acessa o banco de dados
+import admin from 'firebase-admin';
 
 export class TransactionRepository {
 
@@ -23,14 +22,14 @@ export class TransactionRepository {
             .collection('transactions')
             .doc(uid)
             .get()
-            .then(snapshot => snapshot.data())
+            .then(snapshot => snapshot.data());
     }
 
     save(transaction) {
         return admin.firestore()
             .collection('transactions')
             .add(JSON.parse(JSON.stringify(transaction)))
-            .then(response => ({uid: response.id}))
+            .then(response => ({uid: response.id}));
     }
 
     update(transaction) {
@@ -50,7 +49,7 @@ export class TransactionRepository {
         return admin.firestore()
             .collection('transactions')
             .doc(transaction.uid)
-            .delete()
+            .delete();
     }
 
 }

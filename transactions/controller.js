@@ -1,10 +1,9 @@
+//Recebe as requisições e retorna a resposta para o usuário
 import { Transaction } from './model.js';
 
-//Recebe as requisições e retorna a resposta para o usuário
-
 export class TransactionController {
-    
-    #transaction
+
+    #transaction;
 
     constructor(transaction) {
         this.#transaction = transaction || new Transaction();
@@ -16,7 +15,7 @@ export class TransactionController {
         return this.#transaction.findByUser().then(transactions => {
             response.status(200).json(transactions);
         }).catch(error => {
-            response.status(error.code).json(error)
+            response.status(error.code).json(error);
         })
     }
 
@@ -38,7 +37,7 @@ export class TransactionController {
             response.status(200).json(this.#transaction);
         }).catch(error => {
             response.status(error.code).json(error);
-        });
+        })
     }
 
     update(request, response) {
@@ -52,12 +51,12 @@ export class TransactionController {
         });
     }
 
-    delete(request, response) {	
+    delete(request, response) {
         this.#transaction.uid = request.params.uid;
         this.#transaction.user = request.user;
 
         return this.#transaction.delete().then(() => {
-            response.status(200);
+            response.status(200).json(this.#transaction);
         }).catch(error => {
             response.status(error.code).json(error);
         })
